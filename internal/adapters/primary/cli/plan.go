@@ -17,9 +17,7 @@ var planCmd = &cobra.Command{
 	Short: "Preview the execution graph",
 	Long:  `Reads the YAML intent and displays the dependency graph and execution order`,
 	Args:  cobra.ExactArgs(1), // This will help us validate the input by ensuring the arguments are not more than 1
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("plan called")
-	},
+	Run:   runPlan,
 }
 
 func init() {

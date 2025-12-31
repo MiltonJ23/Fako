@@ -18,9 +18,7 @@ var applyCmd = &cobra.Command{
 	Use:   "apply [file]",
 	Short: "Apply configuration to the network ",
 	Args:  cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("apply called")
-	},
+	Run:   runApply,
 }
 
 func init() {

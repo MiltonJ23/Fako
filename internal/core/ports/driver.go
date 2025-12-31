@@ -11,8 +11,8 @@ type NetworkDriver interface {
 	// we will have to pass  the context, so that if the user press ctrl c we can stop whatever we were doing
 
 	//ApplyResource makes the actual change on  the network
-	ApplyResource(ctx *context.Context, r *domain.Resource) error
+	ApplyResource(ctx context.Context, r *domain.Resource) error
 
 	//DeleteResource revert  the change made by applyResource , Crazy right
-	DeleteResource(ctx *context.Context, r *domain.Resource) error
+	DeleteResource(ctx context.Context, r *domain.Resource) error
 }

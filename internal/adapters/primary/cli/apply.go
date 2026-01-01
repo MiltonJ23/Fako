@@ -21,7 +21,10 @@ var applyCmd = &cobra.Command{
 	Run:   runApply,
 }
 
+var driverType string
+
 func init() {
+	applyCmd.Flags().StringVarP(&driverType, "driver", "d", "mock", "Driver to use: mock | linux-local")
 	rootCmd.AddCommand(applyCmd)
 }
 
@@ -51,7 +54,14 @@ func runApply(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
-	driver := network.NewMockDriver()
+	fmt.Printf("-> Selected Driver %s \n", driverType)
+
+	driver, factorySelectionDriverError := network.GetDriver(driverType)
+	if factorySelectionDriverError != nil {
+		fmt.Printf("Driver Error %s  \n", factorySelectionDriverError)
+		os.Exit(1)
+
+	}
 
 	if err := services.Enforce(ctx, executionList, driver); err != nil {
 		fmt.Printf("-> Apply Failed: %v\n", err)

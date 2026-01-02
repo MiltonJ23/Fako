@@ -4,10 +4,10 @@ import "time"
 
 // ResourceState represents the actual state of a resource
 type ResourceState struct {
-	ID          string    `json:"id"`
-	Kind        string    `json:"kind"`
-	Status      string    `json:"status"`
-	LastApplied time.Time `json:"last_applied"`
+	ID          string       `json:"id"`
+	Kind        ResourceType `json:"kind"`
+	Status      string       `json:"status"`
+	LastApplied time.Time    `json:"last_applied"`
 }
 
 type State struct {

@@ -89,6 +89,7 @@ func (graph *DependencyGraph) hasCycle(node string, visited map[string]bool, sta
 	return false
 }
 
+// TopologicalSort return the list of resource in the order they must be created
 func (graph *DependencyGraph) TopologicalSort() ([]*Resource, error) {
 	var sorted []*Resource
 
@@ -129,4 +130,21 @@ func (graph *DependencyGraph) TopologicalSort() ([]*Resource, error) {
 		}
 	}
 	return sorted, nil
+}
+
+// ReverseTopologicalSort is to return the list of resources in the order they must be destroyed
+func (graph *DependencyGraph) ReverseTopologicalSort() ([]*Resource, error) {
+	// We are first of all going to get the list of creating through topological sort
+	CreationOrder, TopologicalSortError := graph.TopologicalSort()
+	if TopologicalSortError != nil {
+		return nil, fmt.Errorf("-> an error occured when trying to obtain the execution order list : %s", TopologicalSortError)
+	}
+
+	// we are then going to reverse that list
+	sizeExecutionList := len(CreationOrder)
+	reversedExecutionList := make([]*Resource, sizeExecutionList)
+	for i, resource := range CreationOrder {
+		reversedExecutionList[n-1-i] = resource
+	}
+	return reversedExecutionList, nil
 }

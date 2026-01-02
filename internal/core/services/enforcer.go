@@ -23,7 +23,7 @@ func Enforce(ctx context.Context, plan []*domain.Resource, driver ports.NetworkD
 		// we are then going to check if the resource we are iterating on is already existing
 		existing, found := currentState.Resources[resource.ID]
 		if found {
-			if existing.Status == "CREATED " {
+			if existing.Status == domain.StatusCreated {
 				fmt.Println("[Skipping] Resource already exist...")
 				continue
 			}
@@ -34,7 +34,7 @@ func Enforce(ctx context.Context, plan []*domain.Resource, driver ports.NetworkD
 		CreatingResourceError := driver.ApplyResource(ctx, resource)
 		if CreatingResourceError != nil {
 			currentState.Resources[resource.ID] = domain.ResourceState{
-				ID: resource.ID, Kind: resource.Kind, Status: "FAILED", LastApplied: time.Now(),
+				ID: resource.ID, Kind: resource.Kind, Status: domain.StatusFailed, LastApplied: time.Now(),
 			}
 			SavingError := repo.Save(currentState)
 			if SavingError != nil {
@@ -44,7 +44,7 @@ func Enforce(ctx context.Context, plan []*domain.Resource, driver ports.NetworkD
 		}
 
 		currentState.Resources[resource.ID] = domain.ResourceState{
-			ID: resource.ID, Kind: resource.Kind, Status: "CREATED", LastApplied: time.Now(),
+			ID: resource.ID, Kind: resource.Kind, Status: domain.StatusCreated, LastApplied: time.Now(),
 		}
 		// Now let's save the thing to disk
 		SavingError := repo.Save(currentState)

@@ -9,6 +9,7 @@ import (
 	"os"
 
 	"github.com/MiltonJ23/Fako/internal/adapters/secondary/network"
+	"github.com/MiltonJ23/Fako/internal/adapters/secondary/persistence"
 	"github.com/MiltonJ23/Fako/internal/core/services"
 	"github.com/spf13/cobra"
 )
@@ -55,16 +56,19 @@ func runApply(cmd *cobra.Command, args []string) {
 	}
 
 	fmt.Printf("-> Selected Driver %s \n", driverType)
-
 	driver, factorySelectionDriverError := network.GetDriver(driverType)
 	if factorySelectionDriverError != nil {
 		fmt.Printf("Driver Error %s  \n", factorySelectionDriverError)
 		os.Exit(1)
-
 	}
 
-	if err := services.Enforce(ctx, executionList, driver); err != nil {
-		fmt.Printf("-> Apply Failed: %v\n", err)
+	// now let's create the repo object that will allow us to store the state of the application
+	repo := persistence.NewJSONStateRepository("fako.state.json")
+	// now we gon execute with the state
+	EnforcingError := services.Enforce(ctx, executionList, driver, repo)
+	// handling Enforcement error
+	if EnforcingError != nil {
+		fmt.Printf("-> Apply Failed: %v\n", EnforcingError)
 		os.Exit(1)
 	}
 

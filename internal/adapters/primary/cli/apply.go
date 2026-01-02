@@ -7,6 +7,8 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/MiltonJ23/Fako/internal/adapters/secondary/network"
 	"github.com/MiltonJ23/Fako/internal/adapters/secondary/persistence"
@@ -30,8 +32,14 @@ func init() {
 }
 
 func runApply(cmd *cobra.Command, args []string) {
-	filename := args[0]         // we get the name of the file
-	ctx := context.Background() // let's get the context of the application
+	filename := args[0] // we get the name of the file
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer cancel() // always make sure to clean up
+
+	go func() {
+		<-ctx.Done() // we are waiting for that interruption signal
+		fmt.Println("-> Signal Received !! Shutting down gracefully......")
+	}()
 
 	data, ReadingFileError := os.ReadFile(filename)
 	if ReadingFileError != nil {

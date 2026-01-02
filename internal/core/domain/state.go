@@ -2,6 +2,12 @@ package domain
 
 import "time"
 
+const (
+	StatusCreated = "CREATED"
+	StatusFailed  = "FAILED"
+	StatusPending = "PENDING"
+)
+
 // ResourceState represents the actual state of a resource
 type ResourceState struct {
 	ID          string       `json:"id"`

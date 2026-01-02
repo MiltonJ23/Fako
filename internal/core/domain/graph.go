@@ -144,7 +144,7 @@ func (graph *DependencyGraph) ReverseTopologicalSort() ([]*Resource, error) {
 	sizeExecutionList := len(CreationOrder)
 	reversedExecutionList := make([]*Resource, sizeExecutionList)
 	for i, resource := range CreationOrder {
-		reversedExecutionList[n-1-i] = resource
+		reversedExecutionList[sizeExecutionList-1-i] = resource
 	}
 	return reversedExecutionList, nil
 }

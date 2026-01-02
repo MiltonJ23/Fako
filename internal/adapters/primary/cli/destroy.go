@@ -19,12 +19,11 @@ var destroyCmd = &cobra.Command{
 	Use:   "destroy [file]",
 	Short: "Destroy resources defined in the file",
 	Args:  cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("destroy called")
-	},
+	Run:   runDestroy,
 }
 
 func init() {
+	destroyCmd.Flags().StringVarP(&driverType, "driver", "d", "mock", "Driver to use")
 	rootCmd.AddCommand(destroyCmd)
 }
 

@@ -3,12 +3,14 @@ package persistence
 import (
 	"encoding/json"
 	"os"
+	"sync"
 
 	"github.com/MiltonJ23/Fako/internal/core/domain"
 )
 
 type JSONStateRepository struct {
 	Filepath string
+	mu       sync.RWMutex
 }
 
 func NewJSONStateRepository(path string) *JSONStateRepository {
@@ -16,6 +18,10 @@ func NewJSONStateRepository(path string) *JSONStateRepository {
 }
 
 func (j *JSONStateRepository) Load() (*domain.State, error) {
+	// let's first of all acquire the RLock , so that multiple goroutines can go ahead and load at the same time
+	j.mu.RLock()
+	defer j.mu.RUnlock()
+
 	// first of all , let's check if the file do exist
 	_, FileStatError := os.Stat(j.Filepath)
 	if os.IsNotExist(FileStatError) {
@@ -38,6 +44,10 @@ func (j *JSONStateRepository) Load() (*domain.State, error) {
 }
 
 func (j *JSONStateRepository) Save(state *domain.State) error {
+	// here we are going with the Write Lock which is clearly the most sensible operation
+	j.mu.Lock()         // we are preventing corruption
+	defer j.mu.Unlock() // automatically free the tex at the end of the execution
+
 	// The first thing we are going to do is to marshall the state, here it is the marshalling operation
 	data, marshallingError := json.MarshalIndent(state, "", "		")
 	if marshallingError != nil {

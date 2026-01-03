@@ -9,6 +9,7 @@ import (
 )
 
 type MockDriver struct {
+	FailCount int
 }
 
 func NewMockDriver() *MockDriver {
@@ -18,6 +19,12 @@ func NewMockDriver() *MockDriver {
 // now let's implement the function of the contract
 
 func (m *MockDriver) ApplyResource(ctx context.Context, r *domain.Resource) error {
+
+	if m.FailCount == 0 {
+		m.FailCount++
+		return fmt.Errorf("-> device is busy [Simulation Driver]")
+	}
+
 	// let's simulate the access and all
 	select {
 	case <-time.After(500 * time.Millisecond):

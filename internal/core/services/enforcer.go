@@ -24,7 +24,7 @@ func Enforce(ctx context.Context, plan []*domain.Resource, driver ports.NetworkD
 	fmt.Println("-> Starting Network Enforcement ......")
 	for i, resource := range plan {
 		// First of all, let's see if the user pressed ctrl C
-		if ctx.Err != nil {
+		if ctx.Err() != nil {
 			return fmt.Errorf("-> operation canceled by user")
 		}
 		fmt.Printf("Step %d/%d: Processing %s... ", i+1, len(plan), resource.ID)
@@ -51,7 +51,7 @@ func Enforce(ctx context.Context, plan []*domain.Resource, driver ports.NetworkD
 			}
 			// reaching here means, the application wasn't successful
 			delay := BaseDelay * time.Duration(attempt)
-			fmt.Printf("\n -> Attempt %s failed: %v. Retrying is %s...", attempt, ApplyError, delay)
+			fmt.Printf("\n -> Attempt %v failed: %v. Retrying is %s...", attempt, ApplyError, delay)
 
 			// we will then wait meanwhile also be on guard to catch a terminaison signal
 			select {

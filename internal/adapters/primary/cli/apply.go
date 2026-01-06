@@ -1,5 +1,5 @@
 /*
-Copyright © 2025 NAME HERE <EMAIL ADDRESS>
+Copyright © 2025 Zingui Fred Mike <mikezingui@yahoo.com>
 */
 package cli
 
@@ -27,7 +27,13 @@ func init() {
 
 func runApply(cmd *cobra.Command, args []string) {
 	filename := args[0]         // we get the name of the file
-	ctx := context.Background() // let's get the context of the application
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM) // this will help us make sure to intercept the sigterm signal and gracefully shutdown 
+	defer cancel() // always make sure to clean up
+
+	go func() {
+		<-ctx.Done() // we are waiting for that interruption signal
+		fmt.Println("-> Signal Received !! Shutting down gracefully......")
+	}()
 
 	data, ReadingFileError := os.ReadFile(filename)
 	if ReadingFileError != nil {

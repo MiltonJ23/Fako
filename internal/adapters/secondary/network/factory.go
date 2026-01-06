@@ -2,6 +2,7 @@ package network
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/MiltonJ23/Fako/internal/core/ports"
 )
@@ -12,6 +13,15 @@ func GetDriver(deviceType string) (ports.NetworkDriver, error) {
 		return NewMockDriver(), nil
 	case "linux-local":
 		return NewLinuxDriver(), nil
+	case "ssh-target":
+		host := os.Getenv("FAKO_TARGET_HOST")
+		user := os.Getenv("FAKO_TARGET_USERNAME")
+		keyPath := os.Getenv("FAKO_TARGET_KEY")
+
+		if host == "" || user == "" || keyPath == "" {
+			return nil, fmt.Errorf("missing ssh configuration, checked the environment variables (FAKO_TARGET_*)")
+		}
+		return NewSSHDriver(host, user, keyPath)
 	default:
 		return nil, fmt.Errorf("device type %s not supported", deviceType)
 	}

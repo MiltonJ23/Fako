@@ -51,7 +51,7 @@ func Enforce(ctx context.Context, plan []*domain.Resource, driver ports.NetworkD
 			}
 			// reaching here means, the application wasn't successful
 			delay := BaseDelay * time.Duration(attempt)
-			fmt.Printf("\n -> Attempt %v failed: %v. Retrying is %s...", attempt, ApplyError, delay)
+			fmt.Printf("\n -> Attempt %d failed: %v. Retrying is %s...", attempt, ApplyError, delay)
 
 			// we will then wait meanwhile also be on guard to catch a terminaison signal
 			select {

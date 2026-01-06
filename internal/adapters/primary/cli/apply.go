@@ -32,28 +32,28 @@ func runApply(cmd *cobra.Command, args []string) {
 
 	go func() {
 		<-ctx.Done() // we are waiting for that interruption signal
-		fmt.Println("-> Signal Received !! Shutting down gracefully......")
+		fmt.Println("-> Signal Received !! Shutting down gracefully......\n")
 	}()
 
 	data, ReadingFileError := os.ReadFile(filename)
 	if ReadingFileError != nil {
-		fmt.Printf("Error Reading file %v : %v", filename, ReadingFileError)
+		fmt.Printf("Error Reading file %v : %v\n", filename, ReadingFileError)
 		os.Exit(1)
 	}
 	// now let's pass the file's data to the service layer
 	graph, parsingError := services.ParseAndValidate(data)
 	if parsingError != nil {
-		fmt.Printf("Validation failed for file %v : %v", filename, parsingError)
+		fmt.Printf("Validation failed for file %v : %v\n", filename, parsingError)
 		os.Exit(1)
 	}
 	// reaching here means that the file was parsed successfully
-	fmt.Println(" -> Validation successful ! No cycles detected")
+	fmt.Println(" -> Validation successful ! No cycles detected\n")
 	fmt.Printf("Found %d resources \n", len(graph.Nodes))
 
 	// now let's determine the execution order
 	executionList, SortingError := graph.TopologicalSort()
 	if SortingError != nil {
-		fmt.Printf("An error occured during sort : %v", SortingError)
+		fmt.Printf("An error occured during sort : %v\n", SortingError)
 		os.Exit(1)
 	}
 

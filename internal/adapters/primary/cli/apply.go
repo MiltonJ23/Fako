@@ -49,7 +49,7 @@ func runApply(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 	// reaching here means that the file was parsed successfully
-	fmt.Println(" -> Validation successful ! No cycles detected\n")
+	fmt.Println(" -> Validation successful ! No cycles detected")
 	fmt.Printf("Found %d resources \n", len(graph.Nodes))
 
 	// now let's determine the execution order

@@ -7,6 +7,8 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/MiltonJ23/Fako/internal/adapters/secondary/network"
 	"github.com/MiltonJ23/Fako/internal/core/services"

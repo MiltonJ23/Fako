@@ -6,8 +6,11 @@ import "errors"
 type ResourceType string
 
 const (
-	TypeVLAN      ResourceType = "VLAN"
-	TypeInterface ResourceType = "INTERFACE"
+	TypeVLAN           ResourceType = "VLAN"
+	TypeInterface      ResourceType = "INTERFACE"
+	TypeLinuxInterface ResourceType = "linux-interface"
+	TypeLinuxRoute     ResourceType = "linux-route"
+	TypeLinuxBGP       ResourceType = "linux-bgp"
 )
 
 // Resource represents a single node in our node graph

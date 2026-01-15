@@ -6,5 +6,5 @@ package main
 import "github.com/MiltonJ23/Fako/internal/adapters/primary/cli"
 
 func main() {
-	cmd.Execute()
+	cli.Execute()
 }

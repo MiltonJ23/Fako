@@ -18,6 +18,7 @@ type SSHDriver struct {
 	Port       string
 	PrivateKey string
 	Passphrase *domain.Secret
+	Mapper     domain.CommandMapper
 }
 
 func NewSSHDriver(host, user, privateKeyPath string, passphrase *domain.Secret) (*SSHDriver, error) {
@@ -27,6 +28,7 @@ func NewSSHDriver(host, user, privateKeyPath string, passphrase *domain.Secret) 
 		Port:       "22",
 		PrivateKey: privateKeyPath,
 		Passphrase: passphrase,
+		Mapper:     NewLinuxMapper(),
 	}, nil
 }
 
@@ -48,7 +50,7 @@ func (s *SSHDriver) connect() (*ssh.Client, error) {
 		signer, signerCreationError = ssh.ParsePrivateKeyWithPassphrase(key, secretBytes)
 
 		// now let's wipe the secret
-		s.Passphrase.Wipe()
+		// s.Passphrase.Wipe()
 	} else {
 		signer, signerCreationError = ssh.ParsePrivateKey(key)
 	}
@@ -64,7 +66,7 @@ func (s *SSHDriver) connect() (*ssh.Client, error) {
 		Auth: []ssh.AuthMethod{
 			ssh.PublicKeys(signer),
 		},
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(), // TODO: implement a secure way out of this pile of dark shiet
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(), // TODO: implement a secure way out of this pile of dark shit
 		Timeout:         5 * time.Second,
 	}
 
@@ -74,34 +76,12 @@ func (s *SSHDriver) connect() (*ssh.Client, error) {
 
 func (s *SSHDriver) ApplyResource(ctx context.Context, r *domain.Resource) error {
 	// TODO  implement a graceful shutdown here
-	sshClient, clientConnectionError := s.connect()
-	if clientConnectionError != nil {
-		return fmt.Errorf("unable to establish a ssh connection, an error occured %v\n", clientConnectionError)
+	cmds, commandGenerationErrors := s.Mapper.GenerateApplyCommands(r)
+	if commandGenerationErrors != nil {
+		return fmt.Errorf("error while generating commands: %v", commandGenerationErrors)
 	}
-	defer sshClient.Close() // the resource will be deleted at the end of the method execution
 
-	// now let's open a new session
-	sshSession, sshSessionCreationError := sshClient.NewSession()
-	if sshSessionCreationError != nil {
-		return fmt.Errorf("failed to open a new session, %v\n", sshSessionCreationError)
-	}
-	defer sshSession.Close()
-	// reaching here means we were able to establish a connection and open a terminal session
-
-	fmt.Printf("[SSH DRIVER] Connected to %s through a secure channel\n", s.Host)
-
-	//We are then going to simulate, to test if we can properly execute a command, we are going to create a file to attest that we were there
-	var b bytes.Buffer
-	sshSession.Stdout = &b
-
-	cmdToExecute := fmt.Sprintf("touch /tmp/fako_was_here_%s.txt", r.ID)
-	runningCommandError := sshSession.Run(cmdToExecute)
-	if runningCommandError != nil {
-		return fmt.Errorf("failed to execute the command remotely: %v", runningCommandError)
-	}
-	// if the error is not triggered, we can safely admit the command was executed properly
-	fmt.Printf("[SSH DRIVER] remote command executed successfully : %v\n", cmdToExecute)
-	return nil
+	return s.RunCommands(ctx, cmds)
 }
 
 // now let's go with DeleteResource, but as with ApplyResource, we are going to delete the file we created
@@ -123,4 +103,43 @@ func (s *SSHDriver) DeleteResource(ctx context.Context, r *domain.Resource) erro
 	sshSession.Stdout = &buf
 	cmdToExecute := fmt.Sprintf("rm /tmp/fako_was_here_%s.txt", r.ID)
 	return sshSession.Run(cmdToExecute)
+}
+
+func (s *SSHDriver) RunCommands(ctx context.Context, commands []domain.RemoteCommand) error {
+	// First, the connection
+	sshClient, clientConnectionError := s.connect()
+	if clientConnectionError != nil {
+		return fmt.Errorf("unable to establish a ssh connection, an error occured %v\n", clientConnectionError)
+	}
+	defer sshClient.Close()
+
+	sshSession, sshSessionCreationError := sshClient.NewSession()
+	if sshSessionCreationError != nil {
+		return fmt.Errorf("failed to open a new session, %v\n", sshSessionCreationError)
+	}
+	defer sshSession.Close()
+
+	// We are going to fuse all  the commands into an executable file to avoid overload on the ssh connection
+	var executableScript bytes.Buffer
+	executableScript.WriteString("set -e\n") // Ensure the transaction is stopped if an error occur
+
+	for _, command := range commands {
+		executableScript.WriteString(fmt.Sprintf("echo Executing: %s\n", command.Description))
+		executableScript.WriteString(command.Cmd + "\n")
+	}
+
+	// Then we capture the standard output and err
+	var stdout, stderr bytes.Buffer
+	sshSession.Stdout = &stdout
+	sshSession.Stderr = &stderr
+
+	fmt.Printf("-> [SSH TRANSACTION] Sending %d commands to %s .....\n", len(commands), s.Host)
+
+	ScriptExecutionError := sshSession.Run(executableScript.String())
+	if ScriptExecutionError != nil {
+		return fmt.Errorf("transaction failed on host %s:\nERROR: %v\nSTDERR: %s\nLAST OUTPUT: %s", s.Host, ScriptExecutionError, stderr.String(), stdout.String())
+	}
+
+	fmt.Printf("-> [SSH TRANSACTION] Success on Host %s \n ", s.Host)
+	return nil
 }

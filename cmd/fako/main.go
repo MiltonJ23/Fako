@@ -1,5 +1,5 @@
 /*
-Copyright © 2025 NAME HERE <EMAIL ADDRESS>
+Copyright © 2025 Zingui Fred Mike <mikezingui@yahoo.com>
 */
 package main
 

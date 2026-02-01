@@ -22,7 +22,7 @@ func ParseAndValidate(data []byte) (*domain.DependencyGraph, error) {
 		if ValidationError != nil {
 			return nil, ValidationError
 		}
-		AddingResourceError := graph.AddResource(res)
+		AddingResourceError := graph.AddResource(&res)
 		if AddingResourceError != nil {
 			return nil, AddingResourceError
 		}

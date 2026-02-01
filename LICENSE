@@ -1,0 +1,19 @@
+BUSINESS SOURCE LICENSE 1.1
+
+Ceci est la licence pour l'œuvre intitulée "Fako".
+
+Licensor: Zingui Fred Mike
+The Licensed Work: Fako (Infrastructure Orchestration Engine)
+
+Change Date: 2032-02-01
+Change License: Apache License, Version 2.0
+
+1. The Licensor hereby grants you the right to copy, modify, create derivative works, redistribute, and make non-production use of the Licensed Work. The Licensor does not grant you the right to use the Licensed Work for any Production Purpose.
+
+2. "Production Purpose" means using the Licensed Work in any environment other than a non-production environment (such as a personal workstation, development environment, or test environment) for any purpose other than testing, debugging, or developing the Licensed Work. Any use of the Licensed Work to manage, operate, or orchestrate real-world infrastructure, networks, or data traffic for internal business operations or for third parties is strictly prohibited under this license.
+
+3. On the Change Date, the Licensor will make available a version of the Licensed Work under the Change License.
+
+4. Any use of the Licensed Work in a manner not expressly authorized by this license is strictly prohibited.
+
+5. THE LICENSED WORK IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE LICENSORS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE LICENSED WORK OR THE USE OR OTHER DEALINGS IN THE LICENSED WORK.

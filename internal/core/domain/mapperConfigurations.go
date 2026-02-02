@@ -11,3 +11,9 @@ type NeighborData struct {
 	NeighborIP string
 	NeighborAS string
 }
+
+type CiscoBGPData struct {
+	ASN       string
+	RouterID  string
+	Neighbors []NeighborData
+}

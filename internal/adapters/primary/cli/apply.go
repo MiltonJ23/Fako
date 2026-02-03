@@ -24,10 +24,16 @@ var applyCmd = &cobra.Command{
 	Run:   runApply,
 }
 
-var driverType string
+var (
+	driverType string
+	dryRun     bool
+	targetOS   string
+)
 
 func init() {
-	applyCmd.Flags().StringVarP(&driverType, "driver", "d", "mock", "Driver to use: mock | linux-local")
+	applyCmd.Flags().StringVarP(&driverType, "driver", "d", "mock", "Driver: mock | ssh-target")
+	applyCmd.Flags().StringVar(&targetOS, "os", "linux", "Target OS: linux | cisco")
+	applyCmd.Flags().BoolVar(&dryRun, "dry-run", false, "Simulate execution")
 	rootCmd.AddCommand(applyCmd)
 }
 
@@ -59,12 +65,12 @@ func runApply(cmd *cobra.Command, args []string) {
 	// now let's determine the execution order
 	executionList, SortingError := graph.TopologicalSort()
 	if SortingError != nil {
-		fmt.Printf("An error occured during sort : %v", SortingError)
+		fmt.Printf("An error occured during sort : %v\n", SortingError)
 		os.Exit(1)
 	}
 
-	fmt.Printf("-> Selected Driver %s \n", driverType)
-	driver, factorySelectionDriverError := network.GetDriver(driverType)
+	fmt.Printf("-> Selected Driver: %s | OS: %s | DryRun: %v\n", driverType, targetOS, dryRun)
+	driver, factorySelectionDriverError := network.GetDriver(driverType, targetOS, dryRun)
 	if factorySelectionDriverError != nil {
 		fmt.Printf("Driver Error %s  \n", factorySelectionDriverError)
 		os.Exit(1)

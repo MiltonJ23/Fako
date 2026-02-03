@@ -22,14 +22,15 @@ type SSHDriver struct {
 	DryRun     bool
 }
 
-func NewSSHDriver(host, user, privateKeyPath string, passphrase *domain.Secret) (*SSHDriver, error) {
+func NewSSHDriver(host, user, privateKeyPath string, passphrase *domain.Secret, mapper domain.CommandMapper, dryRun bool) (*SSHDriver, error) {
 	return &SSHDriver{
 		Host:       host,
 		User:       user,
 		Port:       "22",
 		PrivateKey: privateKeyPath,
 		Passphrase: passphrase,
-		Mapper:     NewLinuxMapper(),
+		Mapper:     mapper,
+		DryRun:     dryRun,
 	}, nil
 }
 

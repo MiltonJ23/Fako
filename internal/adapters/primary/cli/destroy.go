@@ -24,6 +24,8 @@ var destroyCmd = &cobra.Command{
 
 func init() {
 	destroyCmd.Flags().StringVarP(&driverType, "driver", "d", "mock", "Driver to use")
+	destroyCmd.Flags().StringVar(&targetOS, "os", "linux", "Target OS: linux | cisco")
+	destroyCmd.Flags().BoolVar(&dryRun, "dry-run", false, "Simulate execution")
 	rootCmd.AddCommand(destroyCmd)
 }
 
@@ -48,7 +50,7 @@ func runDestroy(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
-	driver, DriverSelectionError := network.GetDriver(driverType)
+	driver, DriverSelectionError := network.GetDriver(driverType, targetOS, dryRun)
 	if DriverSelectionError != nil {
 		fmt.Printf("-> an error occured when selecting the proper driver : %s", DriverSelectionError)
 		os.Exit(1)

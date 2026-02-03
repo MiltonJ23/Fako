@@ -115,7 +115,7 @@ func (s *SSHDriver) RunCommands(ctx context.Context, commands []domain.RemoteCom
 			fmt.Printf("[%d] Desc: %s\n", i+1, cmd.Description)
 			fmt.Printf("    Cmd : %s\n", cmd.Cmd)
 		}
-		fmt.Println("-----------------------------------------\n")
+		fmt.Println("-----------------------------------------")
 		return nil
 	}
 
@@ -155,4 +155,38 @@ func (s *SSHDriver) RunCommands(ctx context.Context, commands []domain.RemoteCom
 
 	fmt.Printf("-> [SSH TRANSACTION] Success on Host %s \n ", s.Host)
 	return nil
+}
+
+// ExecuteCommand will launch a command and fetch its output (stdout)
+func (s *SSHDriver) ExecuteCommand(ctx context.Context, command *domain.RemoteCommand) (string, error) {
+	// let's make a dry-run read in-case
+	if s.DryRun {
+		fmt.Printf("[DRY-RUN READ] Executing: %s\n\n", command.Description)
+		return "[ ]", nil
+	}
+
+	// now , manage the connexion and session launch
+	// let's configure the connexion
+	sshClient, clientConnectionError := s.connect()
+	if clientConnectionError != nil {
+		return "[ ]", fmt.Errorf("unable to establish a ssh connection, an error occured %v\n", clientConnectionError)
+	}
+	defer sshClient.Close()
+
+	sshSession, sshSessionCreationError := sshClient.NewSession()
+	if sshSessionCreationError != nil {
+		return "[ ]", fmt.Errorf("failed to open a new session, %v\n", sshSessionCreationError)
+	}
+	defer sshSession.Close()
+
+	// now let's capture the output
+	var stdout bytes.Buffer
+	sshSession.Stdout = &stdout
+
+	runningCommandError := sshSession.Run(command.Cmd)
+	if runningCommandError != nil {
+		return "[ ]", fmt.Errorf("failed to run the command: %v\n", runningCommandError.Error())
+	}
+
+	return stdout.String(), nil
 }

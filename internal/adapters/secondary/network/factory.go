@@ -8,7 +8,7 @@ import (
 	"github.com/MiltonJ23/Fako/internal/core/ports"
 )
 
-func GetDriver(deviceType string) (ports.NetworkDriver, error) {
+func GetDriver(deviceType string, osType string, dryRun bool) (ports.NetworkDriver, error) {
 	switch deviceType {
 	case "mock":
 		return NewMockDriver(), nil
@@ -29,7 +29,14 @@ func GetDriver(deviceType string) (ports.NetworkDriver, error) {
 		if host == "" || user == "" || keyPath == "" {
 			return nil, fmt.Errorf("missing ssh configuration, checked the environment variables (FAKO_TARGET_*)")
 		}
-		return NewSSHDriver(host, user, keyPath, secretPass)
+
+		selectedMapper, SelectionMapperError := GetMapper(osType)
+		if SelectionMapperError != nil {
+			return nil, fmt.Errorf("an error happened while selecting the Mapper:%v", SelectionMapperError.Error())
+		}
+
+		return NewSSHDriver(host, user, keyPath, secretPass, selectedMapper, dryRun)
+		
 	default:
 		return nil, fmt.Errorf("device type %s not supported", deviceType)
 	}

@@ -59,6 +59,6 @@ func (c *CiscoMapper) GenerateApplyCommands(r *domain.Resource) ([]domain.Remote
 
 func (c *CiscoMapper) GenerateDeleteCommands(r *domain.Resource) ([]domain.RemoteCommand, error) {
 	// TODO: Implement the proper GenerateDeleteCommand method
-	// TODO: Make sure to implement a graceful Shutdown 
+	// TODO: Make sure to implement a graceful Shutdown
 	return nil, nil
 }

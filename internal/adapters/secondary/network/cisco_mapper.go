@@ -2,6 +2,7 @@ package network
 
 import (
 	"bytes"
+	_ "embed"
 	"fmt"
 	"text/template"
 

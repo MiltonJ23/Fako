@@ -19,6 +19,7 @@ type SSHDriver struct {
 	PrivateKey string
 	Passphrase *domain.Secret
 	Mapper     domain.CommandMapper
+	DryRun     bool
 }
 
 func NewSSHDriver(host, user, privateKeyPath string, passphrase *domain.Secret) (*SSHDriver, error) {
@@ -106,7 +107,18 @@ func (s *SSHDriver) DeleteResource(ctx context.Context, r *domain.Resource) erro
 }
 
 func (s *SSHDriver) RunCommands(ctx context.Context, commands []domain.RemoteCommand) error {
-	// First, the connection
+	// Ensure we are not going with a dry run before running the code
+	if s.DryRun {
+		fmt.Println("\n--- DRY RUN MODE (No changes applied) ---")
+		for i, cmd := range commands {
+			fmt.Printf("[%d] Desc: %s\n", i+1, cmd.Description)
+			fmt.Printf("    Cmd : %s\n", cmd.Cmd)
+		}
+		fmt.Println("-----------------------------------------\n")
+		return nil
+	}
+
+	// let's configure the connection
 	sshClient, clientConnectionError := s.connect()
 	if clientConnectionError != nil {
 		return fmt.Errorf("unable to establish a ssh connection, an error occured %v\n", clientConnectionError)
